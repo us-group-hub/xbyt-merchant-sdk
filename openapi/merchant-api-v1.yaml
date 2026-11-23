@@ -1,0 +1,134 @@
+openapi: 3.1.0
+info:
+  title: XBYT Non-Custodial Merchant Payment Gateway API
+  version: 1.0.0
+  description: >
+    Public specification for integrating non-custodial TRON (TRC-20) and TON (Jetton)
+    checkout invoices, server-side status verification, and payout confirmation via XBYT.org.
+  contact:
+    url: https://xbyt.org/docs_api.php
+servers:
+  - url: https://xbyt.org
+    description: Production Gateway
+security:
+  - ApiKeyAuth: []
+paths:
+  /api/merchant/create_invoice.php:
+    post:
+      summary: Create a payment checkout invoice
+      operationId: createInvoice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount, order_id]
+              properties:
+                amount:
+                  type: number
+                  example: 25.0
+                order_id:
+                  type: string
+                  example: "ORDER-2026-1001"
+                description:
+                  type: string
+                  example: "Pro subscription"
+                return_url:
+                  type: string
+                  format: uri
+                  example: "https://merchant.example/payment/return"
+                callback_url:
+                  type: string
+                  format: uri
+                  example: "https://merchant.example/webhooks/xbyt"
+      responses:
+        '200':
+          description: Invoice created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  invoice_id:
+                    type: string
+                  checkout_url:
+                    type: string
+                    format: uri
+                  status:
+                    type: string
+                    example: "pending"
+  /api/merchant/status.php:
+    get:
+      summary: Query authoritative server-side invoice status
+      operationId: getInvoiceStatus
+      parameters:
+        - name: invoice_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Current invoice verification state
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  invoice_id:
+                    type: string
+                  status:
+                    type: string
+                    enum: [pending, completed, expired, failed]
+                  tx_hash:
+                    type: string
+                  amount:
+                    type: number
+  /api/merchant/verify.php:
+    post:
+      summary: Submit an on-chain transaction hash to verify an incoming invoice payment
+      operationId: verifyIncomingPayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [invoice_id, tx_hash]
+              properties:
+                invoice_id:
+                  type: string
+                tx_hash:
+                  type: string
+      responses:
+        '200':
+          description: On-chain verification result
+  /api/merchant/verify_payout.php:
+    post:
+      summary: Verify an outgoing merchant-to-customer on-chain payout transaction
+      operationId: verifyPayout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tx_hash, to, amount]
+              properties:
+                tx_hash:
+                  type: string
+                to:
+                  type: string
+                  description: Recipient TRON or TON wallet address
+                amount:
+                  type: number
+      responses:
+        '200':
+          description: Payout verification result
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
