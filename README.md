@@ -35,6 +35,8 @@ Official public documentation, OpenAPI 3.1 specification, and zero-dependency cl
 │       └── xbyt_client.py         # Zero-dependency Python 3.10+ client
 ├── docs/
 │   ├── PLATFORM-OVERVIEW.md       # Detailed public architecture of Launchpad, P2P, Games & Merchant API
+│   ├── DEX-AND-MARKET-API.md      # Public TRON SunSwap V2 & TON STON.fi Quote, Catalog & OHLCV API
+│   ├── index.html                 # Interactive GitHub Pages Webhook HMAC Tester & Live Market Feed
 │   └── SECURITY.md                # Non-custodial security model & server-side verification checklist
 └── LICENSE                        # MIT License
 ```
@@ -42,8 +44,11 @@ Official public documentation, OpenAPI 3.1 specification, and zero-dependency cl
 ## Official Public Links
 
 - Platform & Token Markets: [https://xbyt.org/](https://xbyt.org/)
+- Interactive Developer Playground (GitHub Pages): [https://us-group-hub.github.io/xbyt-merchant-sdk/](https://us-group-hub.github.io/xbyt-merchant-sdk/)
 - Merchant API Documentation: [https://xbyt.org/docs_api.php](https://xbyt.org/docs_api.php)
+- **Pure-JS TRON & TON DEX Trading Kit + Net-Edge Calculator:** [us-group-hub/xbyt-tron-ton-dex-kit](https://github.com/us-group-hub/xbyt-tron-ton-dex-kit)
 - **Official WordPress Plugin (WooCommerce, myCred, Directorist, WPUF):** [us-group-hub/xbyt-merchant-wordpress](https://github.com/us-group-hub/xbyt-merchant-wordpress)
+- Telegram Smart Trading Bot: [@mytradixbot](https://t.me/mytradixbot)
 - P2P Trading Desk: [https://xbyt.org/p2p.php](https://xbyt.org/p2p.php)
 - Web3 Game Hub: [https://xbyt.org/game.php](https://xbyt.org/game.php)
 - Live Platform Statistics: [https://xbyt.org/stats.php](https://xbyt.org/stats.php)

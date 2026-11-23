@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XBYT.org Developer Playground — Webhook HMAC Tester & Live TRON/TON Quotes</title>
+  <meta name="description" content="Interactive developer playground for XBYT.org Non-Custodial Merchant API (HMAC-SHA256 X-Xbyt-Signature verifier) and live TRON SunSwap / TON STON.fi token quotes." />
+  <style>
+    :root { --bg:#080e1a; --card:#101a2e; --panel:#0b1324; --text:#eef4fc; --muted:#91a4c2; --accent:#38bdf8; --green:#22c55e; --red:#ef4444; --border:rgba(148,163,184,0.18); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif; background:var(--bg); color:var(--text); padding:24px 16px 48px; max-width:940px; margin:0 auto; line-height:1.5; }
+    header { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; margin-bottom:22px; }
+    h1 { font-size:21px; font-weight:800; }
+    .sub { font-size:13px; color:var(--muted); margin-top:4px; }
+    .nav { display:flex; gap:8px; flex-wrap:wrap; }
+    .nav a { background:var(--card); color:var(--text); text-decoration:none; border:1px solid var(--border); padding:8px 12px; border-radius:10px; font-size:12px; font-weight:700; }
+    .nav a.pri { background:linear-gradient(135deg,#0284c7,#2563eb); border-color:transparent; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr; } }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px; }
+    .card h2 { font-size:13px; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-bottom:12px; }
+    label { display:block; font-size:12px; color:var(--muted); margin-bottom:4px; }
+    input, textarea { width:100%; background:var(--panel); color:var(--text); border:1px solid var(--border); border-radius:10px; padding:9px 11px; font-size:13px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; margin-bottom:10px; }
+    button { background:linear-gradient(135deg,#0284c7,#2563eb); color:#fff; border:0; border-radius:10px; padding:10px 14px; font-size:13px; font-weight:700; cursor:pointer; }
+    .out { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; word-break:break-all; margin-top:10px; color:#7dd3fc; }
+    .tok-row { background:var(--panel); border:1px solid var(--border); border-radius:11px; padding:11px 12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .badge { display:inline-block; padding:2px 7px; border-radius:999px; font-size:10px; font-weight:700; background:rgba(56,189,248,0.16); color:#7dd3fc; }
+    .badge.tron { background:rgba(239,68,68,0.16); color:#fca5a5; }
+    footer { margin-top:26px; text-align:center; font-size:12px; color:var(--muted); }
+    footer a { color:var(--accent); text-decoration:none; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>XBYT.org Merchant &amp; DEX Developer Playground</h1>
+      <div class="sub">Client-side WebCrypto HMAC-SHA256 webhook tester &amp; live TRON SunSwap / TON STON.fi market inspector</div>
+    </div>
+    <div class="nav">
+      <a class="pri" href="https://xbyt.org/docs_api.php" target="_blank" rel="noopener">Merchant API Docs ↗</a>
+      <a href="https://us-group-hub.github.io/xbyt-tron-ton-dex-kit/" target="_blank" rel="noopener">DEX Net-Edge Calc ↗</a>
+      <a href="https://github.com/us-group-hub/xbyt-merchant-sdk" target="_blank" rel="noopener">GitHub SDK ↗</a>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <h2>1. HMAC-SHA256 Webhook Signature Tester</h2>
+      <label>Webhook Secret (local browser test only — never sent anywhere)</label>
+      <input id="sec" value="demo_webhook_secret_replace_me" oninput="sign()" />
+      <label>Raw JSON Payload</label>
+      <textarea id="pay" rows="5" oninput="sign()">{"event":"invoice.paid","invoice_id":"inv_1042","chain":"ton","amount":"25.00","symbol":"USDT","tx_hash":"9a7f..."}</textarea>
+      <button onclick="sign()">Compute X-Xbyt-Signature</button>
+      <div class="out" id="sigOut">Computing…</div>
+    </div>
+
+    <div class="card">
+      <h2>2. Live XBYT.org TRON &amp; TON Market Feed</h2>
+      <div id="tokBox"><div style="color:var(--muted);font-size:13px;">Loading live quotes from xbyt.org/api/bot/tokens.php…</div></div>
+      <button onclick="loadMarkets()" style="margin-top:6px;">↻ Refresh Live Quotes</button>
+    </div>
+  </div>
+
+  <footer>
+    <a href="https://xbyt.org">XBYT.org</a> ·
+    <a href="https://github.com/us-group-hub/xbyt-merchant-wordpress">WordPress Plugin</a> ·
+    <a href="https://github.com/us-group-hub/xbyt-tron-ton-dex-kit">TRON/TON DEX Kit</a> ·
+    <a href="https://t.me/mytradixbot">@mytradixbot</a>
+  </footer>
+
+  <script>
+    async function sign() {
+      const secret = document.getElementById('sec').value || '';
+      const body = document.getElementById('pay').value || '';
+      const enc = new TextEncoder();
+      const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+      const buf = await crypto.subtle.sign('HMAC', key, enc.encode(body));
+      const hex = Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
+      document.getElementById('sigOut').textContent = 'X-Xbyt-Signature: ' + hex;
+    }
+
+    async function loadMarkets() {
+      const box = document.getElementById('tokBox');
+      try {
+        const r = await fetch('https://xbyt.org/api/bot/tokens.php');
+        const j = await r.json();
+        const list = (j && j.tokens) || [];
+        if (!list.length) { box.textContent = 'No tokens returned'; return; }
+        box.innerHTML = list.map((t) =>
+          '<div class="tok-row">' +
+            '<div><b>' + t.symbol + '/USDT</b> <span class="badge ' + (t.chain === 'tron' ? 'tron' : '') + '">' + t.chain.toUpperCase() + '</span>' +
+            '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + t.dex + ' · TVL $' + Number(t.liquidity_usd || 0).toFixed(2) + ' · dec ' + t.decimals + '</div></div>' +
+            '<div style="text-align:right;font-family:monospace;"><b>$' + Number(t.price_usd || 0).toFixed(8) + '</b><br>' +
+            '<a href="' + t.trade_url + '" target="_blank" rel="noopener" style="font-size:11px;color:var(--accent);text-decoration:none;">Trade ↗</a></div>' +
+          '</div>'
+        ).join('') + (j.native_usd ? '<div style="font-size:11px;color:var(--muted);">Gas oracle: TON $' + j.native_usd.ton + ' · TRX $' + j.native_usd.trx + '</div>' : '');
+      } catch (e) {
+        box.textContent = 'Could not load live quotes: ' + e.message;
+      }
+    }
+
+    sign();
+    loadMarkets();
+  </script>
+</body>
+</html>
