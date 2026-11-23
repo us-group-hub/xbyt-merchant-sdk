@@ -43,6 +43,7 @@ Official public documentation, OpenAPI 3.1 specification, and zero-dependency cl
 
 - Platform & Token Markets: [https://xbyt.org/](https://xbyt.org/)
 - Merchant API Documentation: [https://xbyt.org/docs_api.php](https://xbyt.org/docs_api.php)
+- **Official WordPress Plugin (WooCommerce, myCred, Directorist, WPUF):** [us-group-hub/xbyt-merchant-wordpress](https://github.com/us-group-hub/xbyt-merchant-wordpress)
 - P2P Trading Desk: [https://xbyt.org/p2p.php](https://xbyt.org/p2p.php)
 - Web3 Game Hub: [https://xbyt.org/game.php](https://xbyt.org/game.php)
 - Live Platform Statistics: [https://xbyt.org/stats.php](https://xbyt.org/stats.php)
